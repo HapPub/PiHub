@@ -58,13 +58,18 @@ function extractAssistantMarkdown(message: AgentMessage): string {
     .trim();
 }
 
-/** Tool-related chat item (toolResult, bashExecution, or a toolCall block). */
+/** Items that belong in the collapsed tool cluster only.
+ *  Assistant messages that also carry text/thinking must stay in the main
+ *  stream — otherwise the moment a toolCall block is appended mid-stream the
+ *  whole reply vanishes into the (default-collapsed) cluster, which looks
+ *  like flickering "text appears then disappears until the run finishes". */
 function isToolMessage(item: ChatMessage): boolean {
   if (item.message.role === 'toolResult' || item.message.role === 'bashExecution') {
     return true;
   }
   if (item.message.role === 'assistant') {
-    return item.message.content.some((block) => block.type === 'toolCall');
+    const { content } = item.message;
+    return content.length > 0 && content.every((block) => block.type === 'toolCall');
   }
   return false;
 }
