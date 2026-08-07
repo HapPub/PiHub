@@ -61,11 +61,11 @@ function ThinkingBlock({
     status === 'interrupted' ? 'hico-exclamationmark' : 'hico-waveform';
 
   if (status === 'active') {
-    // During streaming the thinking body stays collapsed: only the
-    // transition animation is shown — the label characters fade in/out
-    // one by one (owner spec).
+    // Keep the per-character label animation, but also show the accumulating
+    // thinking text — hiding it made long reasoning turns look like the
+    // reply was flickering empty until settle.
     return (
-      <div className="thinking thinking-active" data-anim={animate} data-expanded={false}>
+      <div className="thinking thinking-active" data-anim={animate} data-expanded={true}>
         <div className="thinking-toggle" aria-live="polite">
           <span className={`hico ${iconClass} thinking-icon`} aria-hidden="true" />
           <span className="thinking-label mono" aria-hidden="true">
@@ -81,6 +81,9 @@ function ThinkingBlock({
           </span>
           <span className="thinking-label mono thinking-sr">{label}</span>
         </div>
+        {text.trim().length > 0 ? (
+          <div className="thinking-body thinking-body-live">{text}</div>
+        ) : null}
       </div>
     );
   }
